@@ -57,101 +57,114 @@ mkdir -p config/$K8SHA_HOST3/{keepalived,nginx-lb}
 # create all kubeadm-config.yaml files
 
 cat << EOF > config/$K8SHA_HOST1/kubeadm-config.yaml
-apiVersion: kubeadm.k8s.io/v1alpha2
-kind: MasterConfiguration
-kubernetesVersion: v1.11.1
-apiServerCertSANs:
-- ${K8SHA_HOST1}
-- ${K8SHA_HOST2}
-- ${K8SHA_HOST3}
-- ${K8SHA_VHOST}
-- ${K8SHA_IP1}
-- ${K8SHA_IP2}
-- ${K8SHA_IP3}
-- ${K8SHA_VIP}
-etcd:
-  local:
-    extraArgs:
-      listen-client-urls: "https://127.0.0.1:2379,https://${K8SHA_IP1}:2379"
-      advertise-client-urls: "https://${K8SHA_IP1}:2379"
-      listen-peer-urls: "https://${K8SHA_IP1}:2380"
-      initial-advertise-peer-urls: "https://${K8SHA_IP1}:2380"
-      initial-cluster: "${K8SHA_HOST1}=https://${K8SHA_IP1}:2380"
-    serverCertSANs:
-      - ${K8SHA_HOST1}
-      - ${K8SHA_IP1}
-    peerCertSANs:
-      - ${K8SHA_HOST1}
-      - ${K8SHA_IP1}
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+kubernetesVersion: v1.13.2
+imageRepository: registry.cn-hangzhou.aliyuncs.com/google_containers
+apiServer:
+  certSANs:
+  - ${K8SHA_VIP}
+controlPlaneEndpoint: "${K8SHA_VIP}:16443"
+#etcd:
+#  local:
+#    extraArgs:
+#      listen-client-urls: "https://127.0.0.1:2379,https://${K8SHA_IP1}:2379"
+#      advertise-client-urls: "https://${K8SHA_IP1}:2379"
+#      listen-peer-urls: "https://${K8SHA_IP1}:2380"
+#      initial-advertise-peer-urls: "https://${K8SHA_IP1}:2380"
+#      initial-cluster: "${K8SHA_HOST1}=https://${K8SHA_IP1}:2380"
+#    serverCertSANs:
+#      - ${K8SHA_HOST1}
+#      - ${K8SHA_IP1}
+#    peerCertSANs:
+#      - ${K8SHA_HOST1}
+#      - ${K8SHA_IP1}
 networking:
   # This CIDR is a Calico default. Substitute or remove for your CNI provider.
   podSubnet: "${K8SHA_CIDR}/16"
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+ipvs:
+  minSyncPeriod: 1s
+  scheduler: rr
+  syncPeriod: 10s
+mode: ipvs
+
 EOF
 
 cat << EOF > config/$K8SHA_HOST2/kubeadm-config.yaml
-apiVersion: kubeadm.k8s.io/v1alpha2
-kind: MasterConfiguration
-kubernetesVersion: v1.11.1
-apiServerCertSANs:
-- ${K8SHA_HOST1}
-- ${K8SHA_HOST2}
-- ${K8SHA_HOST3}
-- ${K8SHA_VHOST}
-- ${K8SHA_IP1}
-- ${K8SHA_IP2}
-- ${K8SHA_IP3}
-- ${K8SHA_VIP}
-etcd:
-  local:
-    extraArgs:
-      listen-client-urls: "https://127.0.0.1:2379,https://${K8SHA_IP2}:2379"
-      advertise-client-urls: "https://${K8SHA_IP2}:2379"
-      listen-peer-urls: "https://${K8SHA_IP2}:2380"
-      initial-advertise-peer-urls: "https://${K8SHA_IP2}:2380"
-      initial-cluster: "${K8SHA_HOST1}=https://${K8SHA_IP1}:2380,${K8SHA_HOST2}=https://${K8SHA_IP2}:2380"
-      initial-cluster-state: existing
-    serverCertSANs:
-      - ${K8SHA_HOST2}
-      - ${K8SHA_IP2}
-    peerCertSANs:
-      - ${K8SHA_HOST2}
-      - ${K8SHA_IP2}
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+kubernetesVersion: v1.13.2
+imageRepository: registry.cn-hangzhou.aliyuncs.com/google_containers
+apiServer:
+  certSANs:
+  - ${K8SHA_VIP}
+controlPlaneEndpoint: "${K8SHA_VIP}:16443"
+#etcd:
+#  local:
+#    extraArgs:
+#      listen-client-urls: "https://127.0.0.1:2379,https://${K8SHA_IP2}:2379"
+#      advertise-client-urls: "https://${K8SHA_IP2}:2379"
+#      listen-peer-urls: "https://${K8SHA_IP2}:2380"
+#      initial-advertise-peer-urls: "https://${K8SHA_IP2}:2380"
+#      initial-cluster: "${K8SHA_HOST1}=https://${K8SHA_IP1}:2380,${K8SHA_HOST2}=https://${K8SHA_IP2}:2380"
+#      initial-cluster-state: existing
+#    serverCertSANs:
+#      - ${K8SHA_HOST2}
+#      - ${K8SHA_IP2}
+#    peerCertSANs:
+#      - ${K8SHA_HOST2}
+#      - ${K8SHA_IP2}
 networking:
   # This CIDR is a calico default. Substitute or remove for your CNI provider.
   podSubnet: "${K8SHA_CIDR}/16"
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+ipvs:
+  minSyncPeriod: 1s
+  scheduler: rr
+  syncPeriod: 10s
+mode: ipvs
 EOF
 
 cat << EOF > config/$K8SHA_HOST3/kubeadm-config.yaml
-apiVersion: kubeadm.k8s.io/v1alpha2
-kind: MasterConfiguration
-kubernetesVersion: v1.11.1
-apiServerCertSANs:
-- ${K8SHA_HOST1}
-- ${K8SHA_HOST2}
-- ${K8SHA_HOST3}
-- ${K8SHA_VHOST}
-- ${K8SHA_IP1}
-- ${K8SHA_IP2}
-- ${K8SHA_IP3}
-- ${K8SHA_VIP}
-etcd:
-  local:
-    extraArgs:
-      listen-client-urls: "https://127.0.0.1:2379,https://${K8SHA_IP3}:2379"
-      advertise-client-urls: "https://${K8SHA_IP3}:2379"
-      listen-peer-urls: "https://${K8SHA_IP3}:2380"
-      initial-advertise-peer-urls: "https://${K8SHA_IP3}:2380"
-      initial-cluster: "${K8SHA_HOST1}=https://${K8SHA_IP1}:2380,${K8SHA_HOST2}=https://${K8SHA_IP2}:2380,${K8SHA_HOST3}=https://${K8SHA_IP3}:2380"
-      initial-cluster-state: existing
-    serverCertSANs:
-      - ${K8SHA_HOST3}
-      - ${K8SHA_IP3}
-    peerCertSANs:
-      - ${K8SHA_HOST3}
-      - ${K8SHA_IP3}
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+kubernetesVersion: v1.13.2
+apiServer:
+  certSANs:
+  - ${K8SHA_VIP}
+controlPlaneEndpoint: "${K8SHA_VIP}:16443"
+imageRepository: registry.cn-hangzhou.aliyuncs.com/google_containers
+#etcd:
+#  local:
+#    extraArgs:
+#      listen-client-urls: "https://127.0.0.1:2379,https://${K8SHA_IP3}:2379"
+#      advertise-client-urls: "https://${K8SHA_IP3}:2379"
+#      listen-peer-urls: "https://${K8SHA_IP3}:2380"
+#      initial-advertise-peer-urls: "https://${K8SHA_IP3}:2380"
+#      initial-cluster: "${K8SHA_HOST1}=https://${K8SHA_IP1}:2380,${K8SHA_HOST2}=https://${K8SHA_IP2}:2380,${K8SHA_HOST3}=https://${K8SHA_IP3}:2380"
+#      initial-cluster-state: existing
+#    serverCertSANs:
+#      - ${K8SHA_HOST3}
+#      - ${K8SHA_IP3}
+#    peerCertSANs:
+#      - ${K8SHA_HOST3}
+#      - ${K8SHA_IP3}
 networking:
   # This CIDR is a calico default. Substitute or remove for your CNI provider.
   podSubnet: "${K8SHA_CIDR}/16"
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+ipvs:
+  minSyncPeriod: 1s
+  scheduler: rr
+  syncPeriod: 10s
+mode: ipvs
 EOF
 
 echo "create kubeadm-config.yaml files success. config/$K8SHA_HOST1/kubeadm-config.yaml"
@@ -224,8 +237,8 @@ echo "create nginx-lb files success. config/$K8SHA_HOST3/nginx-lb/"
 
 # create calico yaml file
 sed \
--e "s/K8SHA_CALICO_REACHABLE_IP/${K8SHA_CALICO_REACHABLE_IP}/g" \
--e "s/K8SHA_CIDR/${K8SHA_CIDR}/g" \
+-e "s/DESTINATION/${K8SHA_CALICO_REACHABLE_IP}/g" \
+-e "s/172.168.0.0/${K8SHA_CIDR}/g" \
 calico/calico.yaml.tpl > calico/calico.yaml
 
 echo "create calico.yaml file success. calico/calico.yaml"

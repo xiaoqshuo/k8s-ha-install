@@ -39,8 +39,8 @@ stream {
 
     server {
         listen 16443;
-        proxy_connect_timeout 1s;
-        proxy_timeout 3s;
+        proxy_connect_timeout 30s;
+        proxy_timeout 60s;
         proxy_pass apiserver;
     }
 }
